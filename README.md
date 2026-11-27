@@ -23,3 +23,7 @@ Commands (zero-based index): `add <task>`, `remove <index>`, `list`, `clear`, `d
 [Actions](../../actions) | [Releases](../../releases) | [Packages](../../packages)
 
 Test reports: `build/reports/tests/test/index.html`.
+
+## Windows paths containing Cyrillic
+
+If Gradle cannot load the test class, run `powershell -ExecutionPolicy Bypass -File .\build-local.ps1` from the project directory. The script temporarily maps the project to a free drive letter, builds it and removes the mapping. No source files are moved.
