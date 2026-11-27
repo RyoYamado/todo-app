@@ -1,0 +1,23 @@
+name: Nightly build
+on:
+  schedule:
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v4
+      - run: ./gradlew --no-daemon clean build
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: nightly-test-report
+          path: build/reports/tests/test/
