@@ -1,0 +1,30 @@
+name: Publish to GitHub Packages (Maven)
+on:
+  workflow_run:
+    workflows: ["CI / Build & Release"]
+    types: [completed]
+    branches: [main]
+permissions:
+  contents: read
+  packages: write
+jobs:
+  publish:
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Publish Maven artifact
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+          RUN_ATTEMPT: ${{ github.event.workflow_run.run_attempt }}
+        run: |
+          BASE=$(sed -n 's/^version=//p' gradle.properties)
+          ./gradlew --no-daemon build publish -Pversion="$BASE-ci.$RUN_ID.$RUN_ATTEMPT"
